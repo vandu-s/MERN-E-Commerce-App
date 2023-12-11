@@ -1,9 +1,12 @@
-import React, { useState, Fragment, useEffect } from "react";
+import { useState, useEffect, Fragment } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { fetchAllProductsAsync, selectAllProducts } from "../productSlice";
 import { Dialog, Disclosure, Menu, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
-import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/20/solid";
+import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  StarIcon,
+} from "@heroicons/react/20/solid";
 import { Link } from "react-router-dom";
 import {
   ChevronDownIcon,
@@ -12,7 +15,9 @@ import {
   PlusIcon,
   Squares2X2Icon,
 } from "@heroicons/react/20/solid";
-
+import { selectAllProducts } from "../productSlice";
+import { fetchAllProductsAsync } from "../productSlice";
+import { fetchAllProducts } from "../productAPI";
 const sortOptions = [
   { name: "Most Popular", href: "#", current: true },
   { name: "Best Rating", href: "#", current: false },
@@ -23,38 +28,165 @@ const sortOptions = [
 
 const filters = [
   {
-    id: "color",
-    name: "Color",
-    options: [
-      { value: "white", label: "White", checked: false },
-      { value: "beige", label: "Beige", checked: false },
-      { value: "blue", label: "Blue", checked: true },
-      { value: "brown", label: "Brown", checked: false },
-      { value: "green", label: "Green", checked: false },
-      { value: "purple", label: "Purple", checked: false },
-    ],
-  },
-  {
     id: "category",
     name: "Category",
     options: [
-      { value: "new-arrivals", label: "New Arrivals", checked: false },
-      { value: "sale", label: "Sale", checked: false },
-      { value: "travel", label: "Travel", checked: true },
-      { value: "organization", label: "Organization", checked: false },
-      { value: "accessories", label: "Accessories", checked: false },
+      { label: "smartphones", value: "smartphones", checked: false },
+      { label: "laptops", value: "laptops", checked: false },
+      { label: "fragrances", value: "fragrances", checked: false },
+      { label: "skincare", value: "skincare", checked: false },
+      { label: "groceries", value: "groceries", checked: false },
+      { label: "home decoration", value: "home-decoration", checked: false },
+      { label: "furniture", value: "furniture", checked: false },
+      { label: "tops", value: "tops", checked: false },
+      { label: "womens dresses", value: "womens-dresses", checked: false },
+      { label: "womens shoes", value: "womens-shoes", checked: false },
+      { label: "mens shirts", value: "mens-shirts", checked: false },
+      { label: "mens shoes", value: "mens-shoes", checked: false },
+      { label: "mens watches", value: "mens-watches", checked: false },
+      { label: "womens watches", value: "womens-watches", checked: false },
+      { label: "womens bags", value: "womens-bags", checked: false },
+      { label: "womens jewellery", value: "womens-jewellery", checked: false },
+      { label: "sunglasses", value: "sunglasses", checked: false },
+      { label: "automotive", value: "automotive", checked: false },
+      { label: "motorcycle", value: "motorcycle", checked: false },
+      { label: "lighting", value: "lighting", checked: false },
     ],
   },
   {
-    id: "size",
-    name: "Size",
+    id: "brand",
+    name: "Brand",
     options: [
-      { value: "2l", label: "2L", checked: false },
-      { value: "6l", label: "6L", checked: false },
-      { value: "12l", label: "12L", checked: false },
-      { value: "18l", label: "18L", checked: false },
-      { value: "20l", label: "20L", checked: false },
-      { value: "40l", label: "40L", checked: true },
+      { label: "Apple", value: "Apple", checked: false },
+      { label: "Samsung", value: "Samsung", checked: false },
+      { label: "OPPO", value: "OPPO", checked: false },
+      { label: "Huawei", value: "Huawei", checked: false },
+      {
+        label: "Microsoft Surface",
+        value: "Microsoft Surface",
+        checked: false,
+      },
+      { label: "Infinix", value: "Infinix", checked: false },
+      { label: "HP Pavilion", value: "HP Pavilion", checked: false },
+      {
+        label: "Impression of Acqua Di Gio",
+        value: "Impression of Acqua Di Gio",
+        checked: false,
+      },
+      { label: "Royal_Mirage", value: "Royal_Mirage", checked: false },
+      {
+        label: "Fog Scent Xpressio",
+        value: "Fog Scent Xpressio",
+        checked: false,
+      },
+      { label: "Al Munakh", value: "Al Munakh", checked: false },
+      { label: "Lord   Al Rehab", value: "Lord - Al-Rehab", checked: false },
+      { label: "L'Oreal Paris", value: "L'Oreal Paris", checked: false },
+      { label: "Hemani Tea", value: "Hemani Tea", checked: false },
+      { label: "Dermive", value: "Dermive", checked: false },
+      { label: "ROREC White Rice", value: "ROREC White Rice", checked: false },
+      { label: "Fair & Clear", value: "Fair & Clear", checked: false },
+      { label: "Saaf & Khaas", value: "Saaf & Khaas", checked: false },
+      { label: "Bake Parlor Big", value: "Bake Parlor Big", checked: false },
+      {
+        label: "Baking Food Items",
+        value: "Baking Food Items",
+        checked: false,
+      },
+      { label: "fauji", value: "fauji", checked: false },
+      { label: "Dry Rose", value: "Dry Rose", checked: false },
+      { label: "Boho Decor", value: "Boho Decor", checked: false },
+      { label: "Flying Wooden", value: "Flying Wooden", checked: false },
+      { label: "LED Lights", value: "LED Lights", checked: false },
+      { label: "luxury palace", value: "luxury palace", checked: false },
+      { label: "Golden", value: "Golden", checked: false },
+      {
+        label: "Furniture Bed Set",
+        value: "Furniture Bed Set",
+        checked: false,
+      },
+      { label: "Ratttan Outdoor", value: "Ratttan Outdoor", checked: false },
+      { label: "Kitchen Shelf", value: "Kitchen Shelf", checked: false },
+      { label: "Multi Purpose", value: "Multi Purpose", checked: false },
+      { label: "AmnaMart", value: "AmnaMart", checked: false },
+      {
+        label: "Professional Wear",
+        value: "Professional Wear",
+        checked: false,
+      },
+      { label: "Soft Cotton", value: "Soft Cotton", checked: false },
+      { label: "Top Sweater", value: "Top Sweater", checked: false },
+      {
+        label: "RED MICKY MOUSE..",
+        value: "RED MICKY MOUSE..",
+        checked: false,
+      },
+      { label: "Digital Printed", value: "Digital Printed", checked: false },
+      { label: "Ghazi Fabric", value: "Ghazi Fabric", checked: false },
+      { label: "IELGY", value: "IELGY", checked: false },
+      { label: "IELGY fashion", value: "IELGY fashion", checked: false },
+      {
+        label: "Synthetic Leather",
+        value: "Synthetic Leather",
+        checked: false,
+      },
+      {
+        label: "Sandals Flip Flops",
+        value: "Sandals Flip Flops",
+        checked: false,
+      },
+      { label: "Maasai Sandals", value: "Maasai Sandals", checked: false },
+      { label: "Arrivals Genuine", value: "Arrivals Genuine", checked: false },
+      { label: "Vintage Apparel", value: "Vintage Apparel", checked: false },
+      { label: "FREE FIRE", value: "FREE FIRE", checked: false },
+      { label: "The Warehouse", value: "The Warehouse", checked: false },
+      { label: "Sneakers", value: "Sneakers", checked: false },
+      { label: "Rubber", value: "Rubber", checked: false },
+      { label: "Naviforce", value: "Naviforce", checked: false },
+      { label: "SKMEI 9117", value: "SKMEI 9117", checked: false },
+      { label: "Strap Skeleton", value: "Strap Skeleton", checked: false },
+      { label: "Stainless", value: "Stainless", checked: false },
+      { label: "Eastern Watches", value: "Eastern Watches", checked: false },
+      { label: "Luxury Digital", value: "Luxury Digital", checked: false },
+      { label: "Watch Pearls", value: "Watch Pearls", checked: false },
+      { label: "Bracelet", value: "Bracelet", checked: false },
+      { label: "LouisWill", value: "LouisWill", checked: false },
+      { label: "Copenhagen Luxe", value: "Copenhagen Luxe", checked: false },
+      { label: "Steal Frame", value: "Steal Frame", checked: false },
+      { label: "Darojay", value: "Darojay", checked: false },
+      {
+        label: "Fashion Jewellery",
+        value: "Fashion Jewellery",
+        checked: false,
+      },
+      { label: "Cuff Butterfly", value: "Cuff Butterfly", checked: false },
+      {
+        label: "Designer Sun Glasses",
+        value: "Designer Sun Glasses",
+        checked: false,
+      },
+      { label: "mastar watch", value: "mastar watch", checked: false },
+      { label: "Car Aux", value: "Car Aux", checked: false },
+      { label: "W1209 DC12V", value: "W1209 DC12V", checked: false },
+      { label: "TC Reusable", value: "TC Reusable", checked: false },
+      { label: "Neon LED Light", value: "Neon LED Light", checked: false },
+      {
+        label: "METRO 70cc Motorcycle   MR70",
+        value: "METRO 70cc Motorcycle - MR70",
+        checked: false,
+      },
+      { label: "BRAVE BULL", value: "BRAVE BULL", checked: false },
+      { label: "shock absorber", value: "shock absorber", checked: false },
+      { label: "JIEPOLLY", value: "JIEPOLLY", checked: false },
+      { label: "Xiangle", value: "Xiangle", checked: false },
+      {
+        label: "lightingbrilliance",
+        value: "lightingbrilliance",
+        checked: false,
+      },
+      { label: "Ifei Home", value: "Ifei Home", checked: false },
+      { label: "DADAWU", value: "DADAWU", checked: false },
+      { label: "YIOSI", value: "YIOSI", checked: false },
     ],
   },
 ];
@@ -67,7 +199,7 @@ export default function ProductList() {
   const dispatch = useDispatch();
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const products = useSelector(selectAllProducts);
-  console.log(products);
+
   useEffect(() => {
     dispatch(fetchAllProductsAsync());
   }, [dispatch]);
@@ -329,37 +461,49 @@ export default function ProductList() {
                   <div className="mx-auto max-w-2xl px-4 py-0 sm:px-6 sm:py-0 lg:max-w-7xl lg:px-8">
                     <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:gap-x-8">
                       {products.map((product) => (
-                        <Link to="/product-detail">
-                          <div key={product.id} className="group relative">
-                            <div className="min-h-80 aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-md bg-gray-200 lg:aspect-none group-hover:opacity-75 lg:h-80">
+                        <Link to="/product-detail" key={product.id}>
+                          <div className="group relative border-solid border-2 p-2 border-gray-200">
+                            <div className="min-h-60 aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-md bg-gray-200 lg:aspect-none group-hover:opacity-75 lg:h-60">
                               <img
-                                src={product.imageSrc}
-                                alt={product.imageAlt}
+                                src={product.thumbnail}
+                                alt={product.title}
                                 className="h-full w-full object-cover object-center lg:h-full lg:w-full"
                               />
                             </div>
                             <div className="mt-4 flex justify-between">
                               <div>
                                 <h3 className="text-sm text-gray-700">
-                                  <a href={product.href}>
+                                  <a href={product.thumbnail}>
                                     <span
                                       aria-hidden="true"
                                       className="absolute inset-0"
                                     />
-                                    {product.name}
+                                    {product.title}
                                   </a>
                                 </h3>
                                 <p className="mt-1 text-sm text-gray-500">
-                                  {product.color}
+                                  <StarIcon className="w-6 h-6 inline"></StarIcon>
+                                  <span className=" align-bottom">
+                                    {product.rating}
+                                  </span>
                                 </p>
                               </div>
-                              <p className="text-sm font-medium text-gray-900">
-                                {product.price}
-                              </p>
+                              <div>
+                                <p className="text-sm block font-medium text-gray-900">
+                                  $
+                                  {Math.round(
+                                    product.price *
+                                      (1 - product.discountPercentage / 100)
+                                  )}
+                                </p>
+                                <p className="text-sm block line-through font-medium text-gray-400">
+                                  ${product.price}
+                                </p>
+                              </div>
                             </div>
                           </div>
                         </Link>
-                      ))}
+                      ))}{" "}
                     </div>
                   </div>
                 </div>
